@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:book-my-show-tickets-sys-api="http://www.mulesoft.org/schema/mule/book-my-show-tickets-sys-api"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/book-my-show-tickets-sys-api http://www.mulesoft.org/schema/mule/book-my-show-tickets-sys-api/current/mule-book-my-show-tickets-sys-api.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getOffers" doc:id="7e213646-5579-426e-85d3-98eab4a141de" >
+		<http:request method="GET" doc:name="get offers" doc:id="c6121d5b-77b6-4df8-8dfc-d5ca7d7d8d77" config-ref="HTTP_Request_configuration" path="${httpRequest.getOffersPath}">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	client_secret : "6ba2e6DCd4B6478C974e8dd5C434f581",
+	client_id : "517c8a9b1bd346128cd770950fa31328"
+}]]]></http:headers>
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	offercode : payload.offercode
+}]]]></http:query-params>
+		</http:request>
+		<logger level="INFO" doc:name="end" doc:id="91d2f33a-7c1d-49c0-9389-c131c56fb5ed" message="#[payload]"/>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b94ae8c2-9bb4-4d36-a373-7f503a68d0d6" type="HTTP:BAD_REQUEST">
+				<logger level="INFO" doc:name="error" doc:id="4ef8924e-7a50-46f7-9dc7-ba7e41dd062e" message='#[output application/json&#10;---&#10;{&#10;	"ERROR": "get/offers - while fetching offer code",&#10;	"PAYLOAD": error.description&#10;}]'/>
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+	<flow name="Main" doc:id="eb0c491a-090d-4bc5-b18b-e5406aa50865" >
+		<choice doc:name="check if offercode exists" doc:id="fed7b589-7aa6-4583-b3c6-fb2d4aada285" >
+			<when expression="#[payload.offercode != null]">
+				<choice doc:name="check number of seats" doc:id="ab7d4454-2f85-421c-bb77-26ede4f3a6f8">
+					<when expression="#[payload.numberofseats &gt; 1]">
+						<flow-ref doc:name="getOffers" doc:id="d0ef3104-9c06-478f-ac80-3b43f318f35f" name="getOffers" target="offerCode" />
+						<ee:transform doc:name="calculating total price" doc:id="42b908d8-fac8-4839-99c5-286a8f409556">
+			<ee:message>
+			</ee:message>
+			<ee:variables>
+				<ee:set-variable variableName="totalprice"><![CDATA[%dw 2.0
+output application/json
+---
+payload.price*payload.numberofseats*(1.0-vars.offerCode.offerValue/100)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+						<flow-ref doc:name="bookTickets" doc:id="226b5beb-037c-407f-88f5-c63514cf6011" name="bookTickets" target="ticketsbooked" />
+					</when>
+					<otherwise >
+						<flow-ref doc:name="bookTickets" doc:id="91533eb4-aa80-4118-90d7-ecabf7219c77" name="bookTickets"/>
+					</otherwise>
+				</choice>
+			</when>
+			<otherwise >
+				<flow-ref doc:name="bookTickets" doc:id="a13c1e41-5d9e-44c6-a7c3-1dd47a9b4df2" name="bookTickets" target="ticketsbooked"/>
+			</otherwise>
+		</choice>
+		<ee:transform doc:name="final response" doc:id="79a84809-7527-4d16-96ec-c21fc4d09d76" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[output application/json
+---
+{
+    "message": "Hey "++ payload.customername default "" ++"! Your tickets got booked successfully",
+    "etickets": {
+    "customername": payload.customername default "",
+    "moviename": payload.moviename default "",
+    "city": payload.city default "",
+    "theater": payload.theater default "",
+    "date": payload.date,
+    "showtime": payload.showtime,
+    "totalprice": vars.totalprice default (payload.price*payload.numberofseats),
+    "numberofseats": payload.numberofseats
+  }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c2806c52-048f-4ed0-b1f0-ccc135ca2a2d" type="HTTP:BAD_REQUEST">
+				<ee:transform doc:name="setting payload for error" doc:id="b69097c5-bd12-4952-bf0f-247db7f2c565" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error_type:"400 Bad Request",
+	error_description: "Unable to proceed further as offercode was invalid"
+	
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[%dw 2.0
+output application/json
+---
+400    ]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+				<logger level="INFO" doc:name="error" doc:id="11524e16-9feb-4d99-8a78-03e816c6f9e4" message="#[payload]"/>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="bookTickets" doc:id="c8ccd19d-6572-47e8-a25d-6a1d20199d29" >
+		<ee:transform doc:name="form input payload" doc:id="41ab4f89-89f8-412b-ad03-80a9c546bc05" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	 "totalprice": vars.totalprice default 0
+}
+++ payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="create orders" doc:id="de303ca3-12f8-47e9-bac0-c368af151671" config-ref="HTTP_Request_configuration" path="${httpRequest.createOrdersPath}" target="createOrderResponse">
+			<http:headers ><![CDATA[#[output application/java
+---
+{
+	client_secret : "6ba2e6DCd4B6478C974e8dd5C434f581",
+	client_id : "517c8a9b1bd346128cd770950fa31328"
+}]]]></http:headers>
+		</http:request>
+		<logger level="INFO" doc:name="end" doc:id="a0f0b5a4-492e-4cf1-8032-26335d57fefe" message="#[vars.createOrderResponse]"/>
+	</flow>
+</mule>

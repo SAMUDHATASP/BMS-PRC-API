@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<configuration-properties doc:name="Configuration properties" doc:id="0eed590e-3d3a-4496-a7fd-37c6bca1ce49" file="Config.yaml" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="b6741487-c6a4-4240-863a-f4eb01fe84b7" basePath="${httpRequest.basePath}" >
+		<http:request-connection host="${httpRequest.host}"/>
+	</http:request-config>
+	<http:listener-config name="bookmyshow-prc-api-httpListenerConfig" doc:name="HTTP Listener config" doc:id="0e82a7d3-7e5c-49df-a957-7dd3abdcb5ac" >
+		<http:listener-connection host="${http.host}" port="${http.port}" />
+	</http:listener-config>
+	<api-gateway:autodiscovery apiId="${autoDiscovery.Id}" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="e2932697-2e2f-4cc9-a00e-bbce5d7021db" flowRef="${autoDiscovery.flowName}" />
+
+	
+	
+	
+	</mule>
