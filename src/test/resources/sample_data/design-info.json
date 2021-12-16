@@ -1,8 +1,0 @@
-{
-  "sampleData": {
-    "fb594966-f699-4187-906a-a98f18666984": {
-      "payload": "sample_data/weave.dwl",
-      "vars-offerCode": "sample_data/json.json"
-    }
-  }
-}
