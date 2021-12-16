@@ -1,0 +1,22 @@
+#%RAML 1.0
+title: bookMyShow-prc-api
+
+uses: 
+  book_lib: /exchange_modules/2018f876-db43-4d14-bc10-235563564af6/bookmyshow-library/1.0.0/bookmyshow-library.raml
+
+
+/bookings:
+  post:
+    is: [book_lib.client_id_secret_trait, book_lib.error_responses_trait]
+    body:
+      application/json:
+        type: book_lib.post_bookings_request_datatype
+        examples:
+          input: !include /exchange_modules/2018f876-db43-4d14-bc10-235563564af6/post_bookings_request_example/1.0.0/post_bookings_request_example.raml
+    responses:
+      201:
+        body:
+          application/json:
+            type: book_lib.post_bookings_response_datatype
+            examples:
+              output: !include /exchange_modules/2018f876-db43-4d14-bc10-235563564af6/post_bookings_response_example/1.0.0/post_bookings_response_example.raml

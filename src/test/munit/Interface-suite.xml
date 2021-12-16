@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="Interface-suite.xml" />
+	<munit:test name="main-valid-seats-offercode" doc:id="5f252b8a-e844-4de8-93e1-109ed4c4c21b" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="2f79cc25-acc5-4842-9b50-fee9969d19e7" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://mainvalidseatsoffercode\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://mainvalidseatsoffercode\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="post:\bookings:application\json:bookmyshow-prc-api-config" doc:id="6bafbee1-f3be-4e44-bfdd-c6b2945c6f7e" name="post:\bookings:application\json:bookmyshow-prc-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="61580611-0e6d-4142-b2a3-87477fed5086" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import mainvalidseatsoffercode::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-1seat-valid-offercode" doc:id="116f24db-872e-43d0-ac8f-7185a00b8e1d" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="cf5c0195-4169-4b29-9958-eb595a5b0e7e" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://main1seatvalidoffercode\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://main1seatvalidoffercode\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="post:\bookings:application\json:bookmyshow-prc-api-config" doc:id="d5336dcf-0f7f-48e5-96b3-2c9cb4a27ed7" name="post:\bookings:application\json:bookmyshow-prc-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="a268c864-04c2-432d-86e4-b626a8e54d17" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import main1seatvalidoffercode::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-1seat-invalid-offercode" doc:id="c9967a83-ff53-4957-a5af-f68d087c3c06" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="77226995-a067-4f57-86a4-f00b7103b641" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://main1seatinvalidoffercode\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://main1seatinvalidoffercode\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="post:\bookings:application\json:bookmyshow-prc-api-config" doc:id="ddd4c53a-a7c7-4543-8e20-5593d9334335" name="post:\bookings:application\json:bookmyshow-prc-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="2657b76b-56bd-4a6d-809b-c229594f7d50" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import main1seatinvalidoffercode::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="main-nooffercode" doc:id="d4c2bd0b-1f9d-44c1-a86d-5169e3238f7c" >
+		<munit:behavior >
+			<munit:set-event doc:name="Set Input" doc:id="0ebccf12-80c3-4cc9-807b-9c30b2891ff4" >
+				<munit:payload value="#[output application/json --- readUrl('classpath://mainnooffercode\set-event_payload.dwl')]" encoding="UTF-8" mediaType="application/json" />
+				<munit:attributes value="#[readUrl('classpath://mainnooffercode\set-event_attributes.dwl')]" />
+			</munit:set-event>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="post:\bookings:application\json:bookmyshow-prc-api-config" doc:id="5e8045da-6b76-4f8b-8630-3f041c10ca08" name="post:\bookings:application\json:bookmyshow-prc-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert doc:name="Assert payload" doc:id="d2d72f49-c1c8-49f8-b555-1d1b386e9503" message="The payload does not match">
+				<munit-tools:that ><![CDATA[#[%dw 2.0
+import mainnooffercode::assert_expression_payload
+---
+assert_expression_payload::main({payload: payload, attributes: attributes, vars: vars})]]]></munit-tools:that>
+			</munit-tools:assert>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
